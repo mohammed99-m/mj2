@@ -1,0 +1,46 @@
+POST http://127.0.0.1:8000/main/addservice/
+Content-Type: application/json
+
+{
+  "name": "Fitness Program",
+  "content": "Workout for beginners",
+  "date": "2025-09-20T18:00:00Z"
+}
+
+###
+### Get all services
+GET http://127.0.0.1:8000/main/services/
+
+###
+
+
+
+awds hhuk dvnz fapi
+
+
+
+### إرسال بريد اختبار
+POST http://127.0.0.1:8000/main/send-test2-email/
+Content-Type: application/json
+
+{
+  "subject": "ManUnited",
+  "message": "2-0",
+  "recipient": "nehadshretah@gmail.com"
+}
+
+############################
+### Get CSRF token and page
+GET http://127.0.0.1:8000/main/contact/
+Accept: text/html
+
+### Send message via JSON API
+POST http://127.0.0.1:8000/main/api/send-message/
+Content-Type: application/json
+X-CSRFToken:DqXm8MZo6qo926kYWwgW2rL0HlF5wZSw
+
+{
+  "user_name": "Ali",
+  "user_email": "markoriobrazil@gmail.com",
+  "message": "مرحبا! هذه رسالة تجريبية2."
+}
