@@ -14,27 +14,36 @@ def list_services(request):
     serializer = ServiceSerializer(services,many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
+
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from rest_framework import status
+from .serializers import ServiceSerializer
+
 @api_view(["POST"])
 def add_service_with_video(request):
     data = request.data.copy()
 
-    # Upload image if provided
-    image_file = request.FILES.get('image')
-    if image_file:
-        upload_result = cloudinary.uploader.upload(image_file, resource_type="image")
-        data['image_url'] = upload_result['secure_url']
+    # Instead of uploading, get URLs from request if provided
+    image_url = data.get("image_url")
+    video_url = data.get("video_url")
 
-    # Upload video if provided
-    video_file = request.FILES.get('video')
-    if video_file:
-        upload_result = cloudinary.uploader.upload(video_file, resource_type="video")
-        data['video_url'] = upload_result['secure_url']
+    if image_url:
+        data['image_url'] = image_url
+    else:
+        data['image_url'] = ""
+
+    if video_url:
+        data['video_url'] = video_url
+    else:
+        data['video_url'] = ""
 
     serializer = ServiceSerializer(data=data)
     if serializer.is_valid():
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 
 import json
