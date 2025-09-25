@@ -11,7 +11,7 @@ from rest_framework.permissions import IsAuthenticated
 
 
 @api_view(["DELETE"])
-@permission_classes([IsAuthenticated])
+##@permission_classes([IsAuthenticated])
 def delete_service(request,service_id):
     service = get_object_or_404(Service, id= service_id)
     service.delete()
@@ -19,7 +19,7 @@ def delete_service(request,service_id):
 
 
 @api_view(["DELETE"])
-@permission_classes([IsAuthenticated])
+##@permission_classes([IsAuthenticated])
 def delete_message(request,message_id):
     message= get_object_or_404(UserMessage, id=message_id)
     message.delete()
@@ -34,7 +34,7 @@ def list_services(request):
 
 
 @api_view(["POST"])
-@permission_classes([IsAuthenticated])
+##@permission_classes([IsAuthenticated])
 def add_service_with_video(request):
     data = request.data.copy()
 
@@ -79,7 +79,7 @@ def send_normal_message(request):
 
 
 @api_view(["GET"])
-@permission_classes([IsAuthenticated])
+##f@permission_classes([IsAuthenticated])
 def messages(request):
     messages = UserMessage.objects.all()  
     serializer = UserMessageSerializers(messages,many=True)
@@ -124,6 +124,85 @@ def register_view(request):
             "full_name": user.full_name
         }, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from rest_framework import status
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
+
+@api_view(["POST"])
+def change_password(request):
+    email = request.data.get("email")
+    old_password = request.data.get("old_password")
+    new_password = request.data.get("new_password")
+    new_password_confirm = request.data.get("new_password_confirm")
+
+    if not email or not old_password or not new_password or not new_password_confirm:
+        return Response(
+            {"error": "جميع الحقول مطلوبة."},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    try:
+        user = User.objects.get(email=email)
+    except User.DoesNotExist:
+        return Response(
+            {"error": "المستخدم غير موجود."},
+            status=status.HTTP_404_NOT_FOUND
+        )
+
+    if not user.check_password(old_password):
+        return Response(
+            {"error": "كلمة المرور القديمة غير صحيحة."},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    if new_password != new_password_confirm:
+        return Response(
+            {"error": "كلمة المرور الجديدة غير متطابقة."},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    user.set_password(new_password)
+    user.save()
+
+    return Response(
+        {"message": "تم تغيير كلمة المرور بنجاح."},
+        status=status.HTTP_200_OK
+    )
+
+from rest_framework.decorators import api_view, throttle_classes
+from rest_framework.response import Response
+from rest_framework import status
+from rest_framework.throttling import AnonRateThrottle, UserRateThrottle
+from .auth_utils import verify_credentials
+
+@api_view(["POST"])
+@throttle_classes([AnonRateThrottle])  # ضع قيودًا مناسبة حسب حاجتك
+def check_credentials_view(request):
+    """
+    POST JSON: { "email": "...", "password": "..." }
+    Response:
+      - 200 {"success": true, "user_id": 1, "email": "..."} عند النجاح
+      - 401 {"success": false, "detail": "invalid credentials"} عند الفشل
+    """
+    email = (request.data.get("email") or "").strip()
+    password = (request.data.get("password") or "")
+
+    if not email or not password:
+        return Response({"success": False, "detail": "email and password required"},
+                        status=status.HTTP_400_BAD_REQUEST)
+
+    ok, user = verify_credentials(email, password)
+    if not ok:
+        return Response({"success": False, "detail": "invalid credentials"},
+                        status=status.HTTP_401_UNAUTHORIZED)
+
+    # لا تُدرج أي معلومات حسّاسة في الرد (مثلاً لا تُرسل كلمة المرور)
+    return Response({"success": True, "user_id": user.id, "email": user.email}, status=status.HTTP_200_OK)
 
 #############################################################################################################################
 # import json

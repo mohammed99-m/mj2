@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import  list_services,add_service_with_video,send_normal_message,messages,delete_service,delete_message,register_view
+from .views import  list_services,add_service_with_video,send_normal_message,messages,delete_service,delete_message,register_view,change_password,check_credentials_view
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
@@ -16,7 +16,8 @@ urlpatterns = [
    path('register/', register_view, name='api-register'),
    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-   path('api/token/', MyTokenObtainPairView.as_view(), name='token_obtain_pair'),
+   path("change-password/", change_password, name="change_password"),
+   path("api/check-credentials/", check_credentials_view, name="check_credentials"),
    ##path('addservice/', add_service, name='add service'),
    # path('send-email/', send_email_view, name='send email'),
    # path('send-test-email/', send_test_email, name='send email'),

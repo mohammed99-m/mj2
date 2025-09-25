@@ -57,6 +57,8 @@ Content-Type: application/json
   "user_email": "markoriobrazil@gmail.com",
   "message": "322"
 }
+
+#####
 security way
 #################################################################
 POST http://127.0.0.1:8000/main/register/
@@ -101,3 +103,24 @@ Authorization: Bearer expired_or_fake_token
 
   "refresh": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc1ODgxNDQzMCwiaWF0IjoxNzU4ODE0MzEwLCJqdGkiOiIzOWM0MmRhMmM2MmI0MDJkOGMyNjZmMjgzNGQxMGJmYiIsInVzZXJfaWQiOiIxIn0.YG4SBZvLxXEGkTk-Mrct8ivROVGjB7uK2wb7fXiIxW4",
   "access": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzU4ODE0MzcwLCJpYXQiOjE3NTg4MTQzMTAsImp0aSI6ImUzYjFiZWJiZmFkMzRhOTE5ZDhhZmUyMzg2YjIxNmVkIiwidXNlcl9pZCI6IjEifQ.lK44EUVpsCAIZpbmer2iLOX4YH9F3MXpUAE0gLnlbd4"
+
+
+### Change password with email
+POST http://127.0.0.1:8000/main/change-password/
+Content-Type: application/json
+
+{
+  "email": "ali@example.com",
+  "old_password": "1234aliali",
+  "new_password": "2345aliali",
+  "new_password_confirm": "2345aliali"
+}
+
+### Check credentials (email + password)  <-- the endpoint you asked for
+POST http://127.0.0.1:8000/main/api/check-credentials/
+Content-Type: application/json
+
+{
+  "email": "ali@example.com",
+  "password": "2345aliali"
+}
