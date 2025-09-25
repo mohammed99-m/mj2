@@ -5,17 +5,23 @@ from .serializers import ServiceSerializer
 from .models import Service, UserMessage
 from rest_framework import status
 from rest_framework.response import Response
-# Create your views here.
+from .serializers import UserMessageSerializers
+
 
 
 @api_view(["DELETE"])
 def delete_service(request,service_id):
     service = get_object_or_404(Service, id= service_id)
-
-
     service.delete()
+    return Response({"message": "Project deleted successfully."}, status=status.HTTP_200_OK)
 
-    return Response({"message": "Account deleted successfully."}, status=status.HTTP_204_NO_CONTENT)
+
+@api_view(["DELETE"])
+def delete_message(request,message_id):
+    message= get_object_or_404(UserMessage, id=message_id)
+    message.delete()
+    return Response({"message": "Message deleted successfully."}, status=status.HTTP_200_OK)
+
 
 @api_view(["GET"])
 def list_services(request):
@@ -23,11 +29,6 @@ def list_services(request):
     serializer = ServiceSerializer(services,many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
-
-from rest_framework.decorators import api_view
-from rest_framework.response import Response
-from rest_framework import status
-from .serializers import ServiceSerializer
 
 @api_view(["POST"])
 def add_service_with_video(request):
@@ -54,8 +55,6 @@ def add_service_with_video(request):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-from .serializers import UserMessageSerializers
-
 @api_view(["POST"])
 def send_normal_message(request):
 
@@ -73,6 +72,7 @@ def send_normal_message(request):
 
     userMessage.save()
     return Response(UserMessageSerializers(userMessage).data ,status=status.HTTP_201_CREATED)
+
 
 @api_view(["GET"])
 def messages(request):
