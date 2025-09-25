@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
+from datetime import timedelta
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -80,13 +81,22 @@ TEMPLATES = [
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
         'rest_framework.authentication.SessionAuthentication',
         'rest_framework.authentication.BasicAuthentication',
     ]
 } 
 
-WSGI_APPLICATION = 'edub.wsgi.application'
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=15),
+    'REFRESH_TOKEN_LIFETIME': timedelta(minutes=30),
+    'ROTATE_REFRESH_TOKENS': False,
+    'BLACKLIST_AFTER_ROTATION': False,
+    # إعدادات أخرى اختيارية...
+}
 
+WSGI_APPLICATION = 'edub.wsgi.application'
+AUTH_USER_MODEL = 'accounts.CustomUser'
 
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
@@ -154,6 +164,7 @@ EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 # EMAIL_HOST = "smtp.gmail.com"
 # EMAIL_PORT = 587
 # EMAIL_USE_TLS = True
+
 # EMAIL_HOST_USER = "markoriobrazil@gmail.com"
 # EMAIL_HOST_PASSWORD = "awds hhuk dvnz fapi"
 # ADMIN_EMAIL = "md3393911@gmail.com"

@@ -57,4 +57,47 @@ Content-Type: application/json
   "user_email": "markoriobrazil@gmail.com",
   "message": "322"
 }
+security way
+#################################################################
+POST http://127.0.0.1:8000/main/register/
+Content-Type: application/json
 
+{
+  "email": "ali@example.com",
+  "full_name": "ali",
+  "password": "1234aliali",
+  "password_confirm": "1234aliali"
+}
+
+
+### Login (Get Access + Refresh tokens)
+POST http://127.0.0.1:8000/main/api/token/
+Content-Type: application/json
+
+{
+  "email": "ali@example.com",
+  "password": "1234aliali"
+}
+
+
+### Refresh Access Token
+POST http://127.0.0.1:8000/main/api/token/refresh/
+Content-Type: application/json
+
+{
+  "refresh": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc1ODgxNDYzOSwiaWF0IjoxNzU4ODE0NTE5LCJqdGkiOiI5ZGFiZWE2YWMyNjY0MzNmODM0MDZkYjBlYjU4ZjYxNSIsInVzZXJfaWQiOiIxIn0.CrS0-5Vu9GJuHy1ToHUwn3YIaiVOYrH-7Llviwxzkf8"
+}
+
+
+### Access private endpoint (replace {{access_token}} with real token)
+GET http://127.0.0.1:8000/main/messages/
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzU4ODE0NDY4LCJpYXQiOjE3NTg4MTQ0MDgsImp0aSI6ImMyOWY2MjM1YjVhMjQwMTQ4ZDc4ZjgxZTYwMmZjN2NkIiwidXNlcl9pZCI6IjEifQ.zalU4j-hcqA_lCYS658cLqNrsNhqV8obZvZTqeNhvww
+
+
+### Try expired access token (should return 401)
+GET http://127.0.0.1:8000/api/private/
+Authorization: Bearer expired_or_fake_token
+
+
+  "refresh": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc1ODgxNDQzMCwiaWF0IjoxNzU4ODE0MzEwLCJqdGkiOiIzOWM0MmRhMmM2MmI0MDJkOGMyNjZmMjgzNGQxMGJmYiIsInVzZXJfaWQiOiIxIn0.YG4SBZvLxXEGkTk-Mrct8ivROVGjB7uK2wb7fXiIxW4",
+  "access": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzU4ODE0MzcwLCJpYXQiOjE3NTg4MTQzMTAsImp0aSI6ImUzYjFiZWJiZmFkMzRhOTE5ZDhhZmUyMzg2YjIxNmVkIiwidXNlcl9pZCI6IjEifQ.lK44EUVpsCAIZpbmer2iLOX4YH9F3MXpUAE0gLnlbd4"

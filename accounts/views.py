@@ -6,10 +6,12 @@ from .models import Service, UserMessage
 from rest_framework import status
 from rest_framework.response import Response
 from .serializers import UserMessageSerializers
-
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
 
 
 @api_view(["DELETE"])
+@permission_classes([IsAuthenticated])
 def delete_service(request,service_id):
     service = get_object_or_404(Service, id= service_id)
     service.delete()
@@ -17,6 +19,7 @@ def delete_service(request,service_id):
 
 
 @api_view(["DELETE"])
+@permission_classes([IsAuthenticated])
 def delete_message(request,message_id):
     message= get_object_or_404(UserMessage, id=message_id)
     message.delete()
@@ -31,6 +34,7 @@ def list_services(request):
 
 
 @api_view(["POST"])
+@permission_classes([IsAuthenticated])
 def add_service_with_video(request):
     data = request.data.copy()
 
@@ -75,10 +79,51 @@ def send_normal_message(request):
 
 
 @api_view(["GET"])
+@permission_classes([IsAuthenticated])
 def messages(request):
     messages = UserMessage.objects.all()  
     serializer = UserMessageSerializers(messages,many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+
+
+from rest_framework_simplejwt.views import TokenObtainPairView
+from .serializers import MyTokenObtainPairSerializer
+
+class MyTokenObtainPairView(TokenObtainPairView):
+    serializer_class = MyTokenObtainPairSerializer
+
+
+# accounts/views.py
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from rest_framework import status
+
+from .serializers import RegisterSerializer
+
+@api_view(["POST"])
+def register_view(request):
+    """
+    POST JSON:
+    {
+      "email": "user@example.com",
+      "full_name": "اسم المستخدم",
+      "password": "secret123!",
+      "password_confirm": "secret123!"
+    }
+    """
+    serializer = RegisterSerializer(data=request.data)
+    if serializer.is_valid():
+        user = serializer.save()
+        # يمكنك هنا إرسال إيميل ترحيبي أو تفعيل حساب إن أردت
+        return Response({
+            "ok": True,
+            "id": user.id,
+            "email": user.email,
+            "full_name": user.full_name
+        }, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 #############################################################################################################################
 # import json
