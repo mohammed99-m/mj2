@@ -12,7 +12,16 @@ Content-Type: application/json
 GET http://127.0.0.1:8000/main/services/
 
 ###
+DELETE http://127.0.0.1:8000/main/delete_service/3/
+Content-Type: application/json
 
+{}
+###
+
+### Get all services
+GET http://127.0.0.1:8000/main/messages/
+
+###
 
 
 awds hhuk dvnz fapi
@@ -35,12 +44,12 @@ GET http://127.0.0.1:8000/main/contact/
 Accept: text/html
 
 ### Send message via JSON API
-POST http://127.0.0.1:8000/main/api/send-message/
+POST http://127.0.0.1:8000/main/send-message/
 Content-Type: application/json
-X-CSRFToken:DqXm8MZo6qo926kYWwgW2rL0HlF5wZSw
 
 {
-  "user_name": "Ali",
+  "user_name": "MOHAMMED",
   "user_email": "markoriobrazil@gmail.com",
-  "message": "مرحبا! هذه رسالة تجريبية2."
+  "message": "322"
 }
+
