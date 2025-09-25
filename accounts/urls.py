@@ -4,7 +4,7 @@ from .views import  list_services,add_service_with_video,send_normal_message,mes
 urlpatterns = [
    path('services/',list_services,name="get all Services"),
    path('messages/',messages,name="get all messages"),
-   path('delete_service/<str:service_id>/',delete_service,name="delete_service"),
+   path('delete_service/<str:service_id>/',delete_service,name="delete_service"), ####
    ##path('addservice/', add_service, name='add service'),
    path('addservice_with_video/', add_service_with_video, name='add service'),
    # path('send-email/', send_email_view, name='send email'),
