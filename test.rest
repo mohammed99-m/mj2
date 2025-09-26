@@ -9,7 +9,7 @@ Content-Type: application/json
 
 ###
 ### Get all services
-GET http://127.0.0.1:8000/main/services/
+GET http://mohammed229.pythonanywhere.com/main/services/
 
 ###
 DELETE http://127.0.0.1:8000/main/delete_service/3/
