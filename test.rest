@@ -25,7 +25,7 @@ Content-Type: application/json
 
 ### Get all services
 GET http://127.0.0.1:8000/main/messages/
-
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzg5NjUxMzI1LCJpYXQiOjE3NTg4OTI5MjUsImp0aSI6ImNlZTI1ZGE1ZWU0MzRmNWFhMTBhNDM5NzljNDY3MzEzIiwidXNlcl9pZCI6IjEifQ.hEyTDYTikc063-vMcZdwYeQyimG8XWWb6oILlV3TF6w
 ###
 
 
@@ -93,7 +93,7 @@ Content-Type: application/json
 
 ### Access private endpoint (replace {{access_token}} with real token)
 GET http://127.0.0.1:8000/main/messages/
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzU4ODE0NDY4LCJpYXQiOjE3NTg4MTQ0MDgsImp0aSI6ImMyOWY2MjM1YjVhMjQwMTQ4ZDc4ZjgxZTYwMmZjN2NkIiwidXNlcl9pZCI6IjEifQ.zalU4j-hcqA_lCYS658cLqNrsNhqV8obZvZTqeNhvww
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzU4ODkzMzYyLCJpYXQiOjE3NTg4OTMzNTIsImp0aSI6Ijc1MDBkN2FjYWI3NzRlZjFiMmQ5MDkzNjc0ZTQyYjMzIiwidXNlcl9pZCI6IjEifQ.23r-ZzbwInSg0XSSEDUPxGb3-_fXR7PiXHHAjI3B4Go
 
 
 ### Try expired access token (should return 401)
@@ -111,7 +111,7 @@ Content-Type: application/json
 
 {
   "email": "ali@example.com",
-  "old_password": "1234aliali",
+  "old_password": "2345aliali",
   "new_password": "2345aliali",
   "new_password_confirm": "2345aliali"
 }
@@ -124,3 +124,6 @@ Content-Type: application/json
   "email": "ali@example.com",
   "password": "2345aliali"
 }
+### Access private endpoint (replace {{access_token}} with real token)
+GET http://127.0.0.1:8000/main/messages/
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzU4ODkzNTc2LCJpYXQiOjE3NTg4OTM1NTYsImp0aSI6ImU5NDgxZjg1NTNhYzQ1OTQ4ZWQyMzU0OWQzMWYyYzg4IiwidXNlcl9pZCI6IjEifQ.vroDzwxYgDuI7SkOglUGfGwrJTObCOJExSRZW5C3-H0

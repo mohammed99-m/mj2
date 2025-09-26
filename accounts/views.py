@@ -11,7 +11,7 @@ from rest_framework.permissions import IsAuthenticated
 
 
 @api_view(["DELETE"])
-##@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated])
 def delete_service(request,service_id):
     service = get_object_or_404(Service, id= service_id)
     service.delete()
@@ -19,7 +19,7 @@ def delete_service(request,service_id):
 
 
 @api_view(["DELETE"])
-##@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated])
 def delete_message(request,message_id):
     message= get_object_or_404(UserMessage, id=message_id)
     message.delete()
@@ -34,7 +34,7 @@ def list_services(request):
 
 
 @api_view(["POST"])
-##@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated])
 def add_service_with_video(request):
     data = request.data.copy()
 
@@ -79,7 +79,7 @@ def send_normal_message(request):
 
 
 @api_view(["GET"])
-##f@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated])
 def messages(request):
     messages = UserMessage.objects.all()  
     serializer = UserMessageSerializers(messages,many=True)
@@ -180,29 +180,104 @@ from rest_framework import status
 from rest_framework.throttling import AnonRateThrottle, UserRateThrottle
 from .auth_utils import verify_credentials
 
+# views.py (top imports)
+from rest_framework.decorators import api_view, throttle_classes
+from rest_framework.response import Response
+from rest_framework import status
+from rest_framework.throttling import AnonRateThrottle
+from rest_framework.authtoken.models import Token as AuthToken   # <- alias to avoid clash
+
+# your verify_credentials function should return (ok, user)
+
+import logging
+from importlib import import_module
+
+from rest_framework.decorators import api_view, throttle_classes
+from rest_framework.response import Response
+from rest_framework import status
+from rest_framework.throttling import AnonRateThrottle
+
+logger = logging.getLogger(__name__)
+
 @api_view(["POST"])
-@throttle_classes([AnonRateThrottle])  # ضع قيودًا مناسبة حسب حاجتك
+@throttle_classes([AnonRateThrottle])
 def check_credentials_view(request):
     """
     POST JSON: { "email": "...", "password": "..." }
     Response:
-      - 200 {"success": true, "user_id": 1, "email": "..."} عند النجاح
-      - 401 {"success": false, "detail": "invalid credentials"} عند الفشل
+      - 200 {"success": true, "user_id": 1, "email": "...", "token": "xyz"}  (if authtoken available)
+      - 200 {"success": true, "user_id": 1, "email": "...", "access": "...", "refresh": "..."} (if simplejwt)
+      - 401 / 400 accordingly
+      - 500 if no token backend is configured
     """
     email = (request.data.get("email") or "").strip()
     password = (request.data.get("password") or "")
 
     if not email or not password:
-        return Response({"success": False, "detail": "email and password required"},
-                        status=status.HTTP_400_BAD_REQUEST)
+        return Response(
+            {"success": False, "detail": "email and password required"},
+            status=status.HTTP_400_BAD_REQUEST
+        )
 
     ok, user = verify_credentials(email, password)
     if not ok:
-        return Response({"success": False, "detail": "invalid credentials"},
-                        status=status.HTTP_401_UNAUTHORIZED)
+        return Response(
+            {"success": False, "detail": "invalid credentials"},
+            status=status.HTTP_401_UNAUTHORIZED
+        )
 
-    # لا تُدرج أي معلومات حسّاسة في الرد (مثلاً لا تُرسل كلمة المرور)
-    return Response({"success": True, "user_id": user.id, "email": user.email}, status=status.HTTP_200_OK)
+    # Try DRF authtoken first (safe import)
+    try:
+        authtoken_mod = import_module("rest_framework.authtoken.models")
+        AuthToken = getattr(authtoken_mod, "Token", None)
+        logger.debug("Imported AuthToken: %r", AuthToken)
+
+        # Ensure AuthToken behaves like a Django model (has manager 'objects')
+        if AuthToken is not None and hasattr(AuthToken, "objects"):
+            logger.info("Using rest_framework.authtoken Token backend")
+            # remove old token(s) and create new one
+            try:
+                AuthToken.objects.filter(user=user).delete()
+            except Exception as e:
+                # Defensive: log but continue to attempt create
+                logger.warning("Failed deleting old tokens: %s", e)
+            token = AuthToken.objects.create(user=user)
+            return Response({
+                "success": True,
+                "user_id": user.id,
+                "email": user.email,
+                "token": token.key,
+            }, status=status.HTTP_200_OK)
+        else:
+            logger.info("rest_framework.authtoken.Token not usable (missing 'objects' or not present)")
+    except ModuleNotFoundError:
+        logger.info("rest_framework.authtoken not installed")
+    except Exception as e:
+        logger.warning("Error while trying to use authtoken: %s", e)
+
+    # Fallback: try simplejwt
+    try:
+        from rest_framework_simplejwt.tokens import RefreshToken
+        logger.info("Using simplejwt token backend")
+        refresh = RefreshToken.for_user(user)
+        return Response({
+            "success": True,
+            "user_id": user.id,
+            "email": user.email,
+            "access": str(refresh.access_token),
+        }, status=status.HTTP_200_OK)
+    except ModuleNotFoundError:
+        logger.info("rest_framework_simplejwt not installed")
+    except Exception as e:
+        logger.warning("Error while trying to use simplejwt: %s", e)
+
+    # If we reach here, no token backend available
+    logger.error("No token backend available (authtoken or simplejwt).")
+    return Response({
+        "success": False,
+        "detail": "No token backend available. Please configure rest_framework.authtoken or rest_framework_simplejwt."
+    }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
 #############################################################################################################################
 # import json
